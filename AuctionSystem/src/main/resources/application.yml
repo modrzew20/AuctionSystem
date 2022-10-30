@@ -1,0 +1,33 @@
+spring:
+  config:
+    import: 'optional:file:.env[.properties]'
+  datasource:
+    url: 'jdbc:postgresql://localhost:2000/${POSTGRES_DB}'
+    username: '${POSTGRES_USER}'
+    password: '${POSTGRES_PASSWORD}'
+  jpa:
+    properties:
+      #      javax:
+      #        persistence:
+      #          schema-generation:
+      #            scripts:
+      #              create-source: metadata
+      #              action: create
+      #              create-target: src\main\resources\DB\schema.sql
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+
+    hibernate:
+      ddl-auto: create
+  sql:
+    init:
+      mode: never
+server:
+  error:
+    include-stacktrace: never
+  servlet:
+    context-path: /api
