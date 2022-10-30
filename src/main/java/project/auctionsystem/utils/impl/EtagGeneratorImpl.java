@@ -11,6 +11,8 @@ import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
@@ -25,7 +27,7 @@ public class EtagGeneratorImpl implements EtagGenerator {
     private String secretEtagKey;
 
     @PostConstruct
-    public void init() throws Exception {
+    public void init() throws NoSuchAlgorithmException, InvalidKeyException {
         mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(secretEtagKey.getBytes(), "HmacSHA256"));
     }
