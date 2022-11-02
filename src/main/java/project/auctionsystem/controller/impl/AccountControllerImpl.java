@@ -53,7 +53,7 @@ public class AccountControllerImpl implements AccountController {
         Account account = accountMapper.createAccountDtoToAccount(dto);
         try {
             return ResponseEntity
-                    .ok()
+                    .status(201)
                     .body(accountMapper
                             .accountToGetAccountDto(accountService.create(account)));
         } catch (AccessLevelNotFoundException e) {

@@ -53,7 +53,7 @@ public class AuctionControllerImpl implements AuctionController {
         Auction auction = auctionMapper.createAuctionDtoToAuction(dto);
         try {
             return ResponseEntity
-                    .ok()
+                    .status(201)
                     .body(auctionMapper
                             .auctionToGetAuctionDto(auctionService.create(auction)));
         } catch (InvalidEndDateProvidedException e) {

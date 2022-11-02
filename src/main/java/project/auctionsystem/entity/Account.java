@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Account extends AbstractEntity {
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
