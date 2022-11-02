@@ -8,12 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
-import project.auctionsystem.exception.AuctionExpiredException;
-import project.auctionsystem.exception.AuctionNotFoundException;
-import project.auctionsystem.exception.InvalidEndDateProvidedException;
-import project.auctionsystem.exception.InvalidPriceProvidedException;
+import project.auctionsystem.exception.*;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.impl.AuctionServiceImpl;
+import project.auctionsystem.utils.impl.EtagGeneratorImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +28,8 @@ class AuctionServiceTest {
 
     @Mock
     AuctionRepository auctionRepository;
+    @Mock
+    EtagGeneratorImpl etagGenerator;
     @InjectMocks
     AuctionServiceImpl auctionService;
 
@@ -90,9 +90,10 @@ class AuctionServiceTest {
     }
 
     @Test
-    void updatePriceTest() throws AuctionExpiredException, AuctionNotFoundException, InvalidPriceProvidedException {
+    void updatePriceTest() throws AuctionExpiredException, AuctionNotFoundException, InvalidPriceProvidedException, EtagException {
         when(auctionRepository.findById(auction.getId())).thenReturn(Optional.of(auction));
         when(auctionRepository.save(auction)).thenReturn(auction);
+        doNothing().when(etagGenerator).verifyEtag(auction);
 
         Auction result = auctionService.updatePrice(auction.getId(), 200.0);
         assertEquals(200.0, result.getPrice());

@@ -9,12 +9,10 @@ import project.auctionsystem.controller.AuctionController;
 import project.auctionsystem.dto.CreateAuctionDto;
 import project.auctionsystem.dto.GetAuctionDto;
 import project.auctionsystem.entity.Auction;
-import project.auctionsystem.exception.AuctionExpiredException;
-import project.auctionsystem.exception.AuctionNotFoundException;
-import project.auctionsystem.exception.InvalidEndDateProvidedException;
-import project.auctionsystem.exception.InvalidPriceProvidedException;
+import project.auctionsystem.exception.*;
 import project.auctionsystem.mapper.AuctionMapper;
 import project.auctionsystem.service.AuctionService;
+import project.auctionsystem.utils.EtagGenerator;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +23,7 @@ public class AuctionControllerImpl implements AuctionController {
 
     private final AuctionService auctionService;
     private final AuctionMapper auctionMapper;
+    private final EtagGenerator etagGenerator;
 
     @Override
     public ResponseEntity<List<GetAuctionDto>> getAll() {
@@ -38,10 +37,12 @@ public class AuctionControllerImpl implements AuctionController {
     @Override
     public ResponseEntity<GetAuctionDto> get(UUID id) {
         try {
+            Auction auction = auctionService.get(id);
             return ResponseEntity
                     .ok()
+                    .eTag(etagGenerator.generateEtag(auction))
                     .body(auctionMapper
-                            .auctionToGetAuctionDto(auctionService.get(id)));
+                            .auctionToGetAuctionDto(auction));
         } catch (AuctionNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -72,6 +73,8 @@ public class AuctionControllerImpl implements AuctionController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (AuctionExpiredException | InvalidPriceProvidedException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (EtagException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

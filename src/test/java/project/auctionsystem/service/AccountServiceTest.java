@@ -72,7 +72,7 @@ class AccountServiceTest {
 
     @Test
     void getAccountTest() throws AccountNotFoundException {
-        when(accountRepository.findById(USERNAME)).thenReturn(Optional.of(account));
+        when(accountRepository.findByUsername(USERNAME)).thenReturn(Optional.of(account));
 
         Account result = accountService.get(USERNAME);
         assertEquals(account, result);
@@ -80,7 +80,7 @@ class AccountServiceTest {
 
     @Test
     void getAccountNotFoundException() {
-        when(accountRepository.findById(USERNAME)).thenReturn(Optional.empty());
+        when(accountRepository.findByUsername(USERNAME)).thenReturn(Optional.empty());
         assertThrows(AccountNotFoundException.class, () -> accountService.get(USERNAME));
     }
 
