@@ -7,25 +7,27 @@ spring:
     password: '${POSTGRES_PASSWORD}'
   jpa:
     properties:
-      #      javax:
+#      javax:
       #        persistence:
       #          schema-generation:
       #            scripts:
       #              create-source: metadata
       #              action: create
-      #              create-target: src\main\resources\DB\schema.sql
+      #              create-target: src\main\resources\database\01-schema.sql
       hibernate:
         jdbc:
           lob:
             non_contextual_creation: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true
-
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
   sql:
     init:
       mode: never
+  liquibase:
+    enabled: true
+    drop-first: true
+    change-log: liquibase-changeLog.xml
 server:
   error:
     include-stacktrace: never
