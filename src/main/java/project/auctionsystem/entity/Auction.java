@@ -1,24 +1,19 @@
 package project.auctionsystem.entity;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class Auction {
-
-    @Id
-    @GeneratedValue
-    @Setter(AccessLevel.NONE)
-    private UUID id;
+public class Auction extends AbstractEntity {
 
     @Column(nullable = false, length = 256)
     private String title;

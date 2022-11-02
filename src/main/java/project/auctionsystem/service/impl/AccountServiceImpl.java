@@ -32,7 +32,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account get(String username) throws AccountNotFoundException {
-        return accountRepository.findById(username).orElseThrow(() -> new AccountNotFoundException(username));
+        return accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
     }
 
     @Override

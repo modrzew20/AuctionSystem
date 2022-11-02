@@ -1,15 +1,15 @@
 package project.auctionsystem.service.impl;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.auctionsystem.entity.Auction;
-import project.auctionsystem.exception.AuctionExpiredException;
-import project.auctionsystem.exception.AuctionNotFoundException;
-import project.auctionsystem.exception.InvalidEndDateProvidedException;
-import project.auctionsystem.exception.InvalidPriceProvidedException;
+import project.auctionsystem.exception.*;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.AuctionService;
+import project.auctionsystem.utils.EtagGenerator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +21,11 @@ import java.util.UUID;
 public class AuctionServiceImpl implements AuctionService {
 
     private final AuctionRepository auctionRepository;
+    private final EtagGenerator etagGenerator;
+
+    @Getter
+    @Value("${MIN_END_AUCTION}")
+    private int minEndAuction;
 
     @Override
     public List<Auction> getAll() {
@@ -34,18 +39,20 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Auction create(Auction auction) throws InvalidEndDateProvidedException {
-        if (auction.getEndDate().isBefore(LocalDateTime.now().plusDays(1))) {
+        if (auction.getEndDate().isBefore(LocalDateTime.now().plusDays(getMinEndAuction()))) {
             throw new InvalidEndDateProvidedException(auction.getEndDate());
         }
         return auctionRepository.save(auction);
     }
 
     @Override
-    public Auction updatePrice(UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException {
+    public Auction updatePrice(UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, EtagException {
         Auction auctionDB = get(id);
         if (auctionDB.getPrice() > price) throw new InvalidPriceProvidedException(price);
         if (auctionDB.getEndDate().isBefore(LocalDateTime.now())) throw new AuctionExpiredException(id);
         auctionDB.setPrice(price);
+
+        etagGenerator.verifyAndUpdateEtag(auctionDB);
         return auctionRepository.save(auctionDB);
     }
 }

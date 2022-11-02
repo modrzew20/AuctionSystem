@@ -1,10 +1,7 @@
 package project.auctionsystem.service;
 
 import project.auctionsystem.entity.Auction;
-import project.auctionsystem.exception.AuctionExpiredException;
-import project.auctionsystem.exception.AuctionNotFoundException;
-import project.auctionsystem.exception.InvalidEndDateProvidedException;
-import project.auctionsystem.exception.InvalidPriceProvidedException;
+import project.auctionsystem.exception.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +14,7 @@ public interface AuctionService {
 
     Auction create(Auction auction) throws InvalidEndDateProvidedException;
 
-    Auction updatePrice(UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException;
+    Auction updatePrice(UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, EtagException;
 
 
 }

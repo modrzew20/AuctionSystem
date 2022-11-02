@@ -13,6 +13,7 @@ import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
 import project.auctionsystem.mapper.AccountMapper;
 import project.auctionsystem.service.AccountService;
+import project.auctionsystem.utils.EtagGenerator;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class AccountControllerImpl implements AccountController {
 
     private final AccountMapper accountMapper;
     private final AccountService accountService;
+    private final EtagGenerator etagGenerator;
 
     @Override
     public ResponseEntity<List<GetAccountDto>> getAll() {
@@ -35,10 +37,12 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public ResponseEntity<GetAccountDto> get(String username) {
         try {
+            Account account = accountService.get(username);
             return ResponseEntity
                     .ok()
+                    .eTag(etagGenerator.generateEtag(account))
                     .body(accountMapper
-                            .accountToGetAccountDto(accountService.get(username)));
+                            .accountToGetAccountDto(account));
         } catch (AccountNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
