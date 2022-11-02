@@ -11,6 +11,7 @@ import project.auctionsystem.dto.GetAuctionDto;
 import project.auctionsystem.entity.Auction;
 import project.auctionsystem.exception.AuctionExpiredException;
 import project.auctionsystem.exception.AuctionNotFoundException;
+import project.auctionsystem.exception.InvalidEndDateProvidedException;
 import project.auctionsystem.exception.InvalidPriceProvidedException;
 import project.auctionsystem.mapper.AuctionMapper;
 import project.auctionsystem.service.AuctionService;
@@ -49,10 +50,14 @@ public class AuctionControllerImpl implements AuctionController {
     @Override
     public ResponseEntity<GetAuctionDto> create(CreateAuctionDto dto) {
         Auction auction = auctionMapper.createAuctionDtoToAuction(dto);
-        return ResponseEntity
-                .ok()
-                .body(auctionMapper
-                        .auctionToGetAuctionDto(auctionService.create(auction)));
+        try {
+            return ResponseEntity
+                    .ok()
+                    .body(auctionMapper
+                            .auctionToGetAuctionDto(auctionService.create(auction)));
+        } catch (InvalidEndDateProvidedException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     @Override

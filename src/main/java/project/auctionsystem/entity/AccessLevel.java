@@ -13,8 +13,8 @@ import javax.persistence.Id;
 @NoArgsConstructor
 public class AccessLevel {
 
-    private static final String CLIENT = "CLIENT";
-    private static final String UNAUTHORIZED = "UNAUTHORIZED";
+    public static final String CLIENT = "CLIENT";
+    public static final String UNAUTHORIZED = "UNAUTHORIZED";
 
     @Id
     private String name;

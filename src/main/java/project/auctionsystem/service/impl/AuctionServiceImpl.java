@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import project.auctionsystem.entity.Auction;
 import project.auctionsystem.exception.AuctionExpiredException;
 import project.auctionsystem.exception.AuctionNotFoundException;
+import project.auctionsystem.exception.InvalidEndDateProvidedException;
 import project.auctionsystem.exception.InvalidPriceProvidedException;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.AuctionService;
@@ -32,7 +33,10 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Auction create(Auction auction) {
+    public Auction create(Auction auction) throws InvalidEndDateProvidedException {
+        if (auction.getEndDate().isBefore(LocalDateTime.now().plusDays(1))) {
+            throw new InvalidEndDateProvidedException(auction.getEndDate());
+        }
         return auctionRepository.save(auction);
     }
 
