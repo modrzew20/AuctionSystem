@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import project.auctionsystem.dto.GetBalanceDto;
 import project.auctionsystem.entity.AccessLevel;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
@@ -114,10 +115,10 @@ class AccountServiceTest {
             auction.setEndDate(LocalDateTime.now().minusDays(1));
             auctionList.add(auction);
         }
-        when(auctionRepository.findByWinnerUsernameAndEndDateBefore(any(String.class), any(LocalDateTime.class))).thenReturn(auctionList);
+        when(auctionRepository.findByWinner_Username(any(String.class))).thenReturn(auctionList);
 
-        double result = accountService.getBalance(USERNAME, "usd");
-        assertEquals(randomInt * 100.0, result);
+        GetBalanceDto result = accountService.getBalance(USERNAME, "usd");
+        assertEquals(randomInt * 100.0, result.getBalance());
     }
 
 }

@@ -53,28 +53,28 @@ public class AuctionControllerImpl implements AuctionController {
         Auction auction = auctionMapper.createAuctionDtoToAuction(dto);
         try {
             return ResponseEntity
-                    .ok()
+                    .status(201)
                     .body(auctionMapper
-                            .auctionToGetAuctionDto(auctionService.create(auction)));
+                            .auctionToGetAuctionDto(auctionService.create(dto.getSellerUsername(), auction)));
         } catch (InvalidEndDateProvidedException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (AccountNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
     @Override
-    public ResponseEntity<GetAuctionDto> updatePrice(UUID id, Double price) {
+    public ResponseEntity<GetAuctionDto> updatePrice(UUID id, String username, Double price) {
         try {
-            Auction auction = auctionService.updatePrice(id, price);
+            Auction auction = auctionService.updatePrice(username, id, price);
             return ResponseEntity
                     .ok()
                     .body(auctionMapper
                             .auctionToGetAuctionDto(auction));
-        } catch (AuctionNotFoundException e) {
+        } catch (AuctionNotFoundException | AccountNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (AuctionExpiredException | InvalidPriceProvidedException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (EtagException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

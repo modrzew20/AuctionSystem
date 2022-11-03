@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CreateAuctionDto {
 
+    private String sellerUsername;
     private String title;
     private Double price;
     private LocalDateTime endDate;
