@@ -22,4 +22,8 @@ public interface AccountController {
 
     @GetMapping("/{username}/balance/{currency}")
     ResponseEntity<GetBalanceDto> getBalance(@PathVariable String username, @PathVariable String currency);
+
+    @PutMapping("/{username}")
+    ResponseEntity<GetAccountDto> updatePassword(@PathVariable String username, @RequestParam String password);
+
 }

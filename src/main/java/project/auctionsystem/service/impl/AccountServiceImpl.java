@@ -9,10 +9,12 @@ import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
 import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
+import project.auctionsystem.exception.EtagException;
 import project.auctionsystem.repository.AccessLevelRepository;
 import project.auctionsystem.repository.AccountRepository;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.AccountService;
+import project.auctionsystem.utils.EtagGenerator;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AuctionRepository auctionRepository;
     private final AccessLevelRepository accessLevelRepository;
+    private final EtagGenerator etagGenerator;
 
     @Override
     public List<Account> getAll() {
@@ -55,5 +58,13 @@ public class AccountServiceImpl implements AccountService {
         GetBalanceDto dto = new GetBalanceDto();
         dto.setBalance(balance);
         return dto;
+    }
+
+    @Override
+    public Account updatePassword(String username, String password) throws AccountNotFoundException, EtagException {
+        Account account = accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+        account.setPassword(password);
+        etagGenerator.verifyAndUpdateEtag(account);
+        return accountRepository.save(account);
     }
 }

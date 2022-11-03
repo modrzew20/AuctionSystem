@@ -50,12 +50,13 @@ public class AuctionControllerImpl implements AuctionController {
 
     @Override
     public ResponseEntity<GetAuctionDto> create(CreateAuctionDto dto) {
-        Auction auction = auctionMapper.createAuctionDtoToAuction(dto);
         try {
+            Auction auction = auctionService.create(dto.getSellerUsername(), auctionMapper.createAuctionDtoToAuction(dto));
             return ResponseEntity
                     .status(201)
+                    .eTag(etagGenerator.generateEtag(auction))
                     .body(auctionMapper
-                            .auctionToGetAuctionDto(auctionService.create(dto.getSellerUsername(), auction)));
+                            .auctionToGetAuctionDto(auction));
         } catch (InvalidEndDateProvidedException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (AccountNotFoundException e) {
@@ -69,6 +70,7 @@ public class AuctionControllerImpl implements AuctionController {
             Auction auction = auctionService.updatePrice(username, id, price);
             return ResponseEntity
                     .ok()
+                    .eTag(etagGenerator.generateEtag(auction))
                     .body(auctionMapper
                             .auctionToGetAuctionDto(auction));
         } catch (AuctionNotFoundException | AccountNotFoundException e) {

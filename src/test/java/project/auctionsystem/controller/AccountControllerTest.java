@@ -152,7 +152,43 @@ class AccountControllerTest {
                 .jsonPath().getDouble("balance");
 
         assertEquals(200.0, balance);
+    }
 
+    @Test
+    void updatePasswordTest() {
+
+        String eTag = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body("{\"username\":\"test3\",\"password\":\"password\",\"accessLevel\":{\"name\":\"CLIENT\"}}")
+                .when()
+                .post(URL + "/accounts")
+                .then()
+                .assertThat()
+                .statusCode(201)
+                .extract()
+                .header("ETag");
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .header("If-Match", eTag)
+                .pathParam("username", "test3")
+                .param("password", "newPassword")
+                .when()
+                .put(URL + "/accounts/{username}")
+                .then()
+                .assertThat()
+                .statusCode(200);
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .header("If-Match", eTag)
+                .pathParam("username", "test3")
+                .param("password", "newPassword")
+                .when()
+                .put(URL + "/accounts/{username}")
+                .then()
+                .assertThat()
+                .statusCode(409);
     }
 
 

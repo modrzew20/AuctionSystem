@@ -12,10 +12,12 @@ import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
 import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
+import project.auctionsystem.exception.EtagException;
 import project.auctionsystem.repository.AccessLevelRepository;
 import project.auctionsystem.repository.AccountRepository;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.impl.AccountServiceImpl;
+import project.auctionsystem.utils.EtagGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -41,6 +44,9 @@ class AccountServiceTest {
 
     @Mock
     AuctionRepository auctionRepository;
+
+    @Mock
+    EtagGenerator etagGenerator;
 
     @InjectMocks
     AccountServiceImpl accountService;
@@ -120,5 +126,16 @@ class AccountServiceTest {
         GetBalanceDto result = accountService.getBalance(USERNAME, "usd");
         assertEquals(randomInt * 100.0, result.getBalance());
     }
+
+    @Test
+    void updatePasswordTest() throws AccountNotFoundException, EtagException {
+        when(accountRepository.findByUsername(USERNAME)).thenReturn(Optional.of(account));
+        when(accountRepository.save(account)).thenReturn(account);
+        doNothing().when(etagGenerator).verifyAndUpdateEtag(any(Account.class));
+
+        Account result = accountService.updatePassword(USERNAME, PASSWORD);
+        assertEquals(account, result);
+    }
+
 
 }

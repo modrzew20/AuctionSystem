@@ -12,6 +12,7 @@ import project.auctionsystem.dto.GetBalanceDto;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
+import project.auctionsystem.exception.EtagException;
 import project.auctionsystem.mapper.AccountMapper;
 import project.auctionsystem.service.AccountService;
 import project.auctionsystem.utils.EtagGenerator;
@@ -51,12 +52,14 @@ public class AccountControllerImpl implements AccountController {
 
     @Override
     public ResponseEntity<GetAccountDto> create(CreateAccountDto dto) {
-        Account account = accountMapper.createAccountDtoToAccount(dto);
         try {
+            Account account = accountService.create(accountMapper.createAccountDtoToAccount(dto));
             return ResponseEntity
                     .status(201)
+                    .eTag(etagGenerator.generateEtag(account))
                     .body(accountMapper
-                            .accountToGetAccountDto(accountService.create(account)));
+                            .accountToGetAccountDto(account));
+
         } catch (AccessLevelNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -70,6 +73,21 @@ public class AccountControllerImpl implements AccountController {
                     .body(accountService.getBalance(username, currency));
         } catch (AccountNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<GetAccountDto> updatePassword(String username, String password) {
+        try {
+            Account account = accountService.updatePassword(username, password);
+            return ResponseEntity
+                    .ok()
+                    .eTag(etagGenerator.generateEtag(account))
+                    .body(accountMapper.accountToGetAccountDto(account));
+        } catch (AccountNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (EtagException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }
