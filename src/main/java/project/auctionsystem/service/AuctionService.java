@@ -12,9 +12,8 @@ public interface AuctionService {
 
     Auction get(UUID id) throws AuctionNotFoundException;
 
-    Auction create(Auction auction) throws InvalidEndDateProvidedException;
+    Auction create(String sellerUsername, Auction auction) throws InvalidEndDateProvidedException, AccountNotFoundException;
 
-    Auction updatePrice(String username, UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, EtagException, AccountNotFoundException;
-
+    Auction updatePrice(String username, UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, AccountNotFoundException;
 
 }

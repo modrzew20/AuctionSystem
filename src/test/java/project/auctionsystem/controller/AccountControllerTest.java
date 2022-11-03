@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
 import javax.annotation.PostConstruct;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,8 +84,8 @@ class AccountControllerTest {
         RestAssured.given()
                 .contentType(ContentType.JSON)
                 .when()
-                .param("username", "test")
-                .get(URL + "/accounts")
+                .pathParam("username", "test")
+                .get(URL + "/accounts/{username}")
                 .then()
                 .assertThat()
                 .statusCode(200);
@@ -114,6 +115,44 @@ class AccountControllerTest {
                 .jsonPath().getDouble("balance");
 
         assertEquals(0.0, balance);
+
+        UUID auctionID = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body("{\"sellerUsername\":\"test2\",\"title\":\"tytuł testowy\",\"price\":1.0,\"endDate\":\"2100-12-05T00:00:00.000\"}")
+                .when()
+                .post(URL + "/auctions")
+                .then()
+                .assertThat()
+                .statusCode(201).extract().jsonPath().getUUID("id");
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .pathParam("id", auctionID)
+                .param("username", "test2")
+                .param("price", 200.0)
+                .patch(URL + "/auctions/{id}")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .body("title", is("tytuł testowy"))
+                .body("price", is(200.0F))
+                .body("endDate", is("2100-12-05T00:00:00"));
+
+        balance = RestAssured.given()
+                .contentType(ContentType.JSON)
+                .when()
+                .pathParam("username", "test2")
+                .pathParam("currency", "usd")
+                .get(URL + "/accounts/{username}/balance/{currency}")
+                .then()
+                .assertThat()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getDouble("balance");
+
+        assertEquals(200.0, balance);
+
     }
 
 

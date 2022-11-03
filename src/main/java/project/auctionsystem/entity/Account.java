@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,6 +28,6 @@ public class Account extends AbstractEntity {
 
     @OneToMany
     @Setter(lombok.AccessLevel.NONE)
-    private List<Auction> auctions;
+    private List<Auction> auctions = new ArrayList<>();
 
 }

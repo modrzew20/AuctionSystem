@@ -41,24 +41,26 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public Auction create(Auction auction) throws InvalidEndDateProvidedException {
+    public Auction create(String sellerUsername, Auction auction) throws InvalidEndDateProvidedException, AccountNotFoundException {
         if (auction.getEndDate().isBefore(LocalDateTime.now().plusDays(getMinEndAuction()))) {
             throw new InvalidEndDateProvidedException(auction.getEndDate());
         }
-        return auctionRepository.save(auction);
+        Account seller = accountRepository.findByUsername(sellerUsername).orElseThrow(() -> new AccountNotFoundException(sellerUsername));
+        Auction saved = auctionRepository.save(auction);
+        seller.getAuctions().add(saved);
+        accountRepository.save(seller);
+        return saved;
     }
 
     @Override
-    public Auction updatePrice(String username, UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, EtagException, AccountNotFoundException {
+    public Auction updatePrice(String username, UUID id, Double price) throws AuctionNotFoundException, AuctionExpiredException, InvalidPriceProvidedException, AccountNotFoundException {
         Auction auctionDB = get(id);
-        if (auctionDB.getPrice() > price) throw new InvalidPriceProvidedException(price);
+        if (auctionDB.getPrice() >= price) throw new InvalidPriceProvidedException(price);
         if (auctionDB.getEndDate().isBefore(LocalDateTime.now())) throw new AuctionExpiredException(id);
         Account winner = accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
 
         auctionDB.setWinner(winner);
         auctionDB.setPrice(price);
-
-        etagGenerator.verifyAndUpdateEtag(auctionDB);
         return auctionRepository.save(auctionDB);
     }
 }

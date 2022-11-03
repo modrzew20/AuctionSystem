@@ -81,10 +81,11 @@ class AuctionServiceTest {
     }
 
     @Test
-    void createAuctionTest() throws InvalidEndDateProvidedException {
+    void createAuctionTest() throws InvalidEndDateProvidedException, AccountNotFoundException {
         when(auctionRepository.save(auction)).thenReturn(auction);
+        when(accountRepository.findByUsername(USERNAME)).thenReturn(Optional.ofNullable(account));
 
-        Auction result = auctionService.create(auction);
+        Auction result = auctionService.create(USERNAME, auction);
         assertEquals(result.getTitle(), auction.getTitle());
         verify(auctionRepository, times(1)).save(auction);
     }
@@ -92,7 +93,7 @@ class AuctionServiceTest {
     @Test
     void createAuctionInvalidEndDateProvidedExceptionText() {
         auction.setEndDate(LocalDateTime.now().minusDays(1));
-        assertThrows(InvalidEndDateProvidedException.class, () -> auctionService.create(auction));
+        assertThrows(InvalidEndDateProvidedException.class, () -> auctionService.create(USERNAME, auction));
     }
 
     @Test

@@ -40,7 +40,8 @@ public class EtagGeneratorImpl implements EtagGenerator {
     @Override
     public void verifyEtag(Taggable entity) throws EtagException {
         String etag = httpServletRequest.getHeader("If-Match");
-        if (!etag.equals(entity.generateETagMessage())) {
+        etag = etag.replace("\"", "");
+        if (!etag.equals(generateEtag(entity))) {
             throw new EtagException("Etag is not valid");
         }
     }
