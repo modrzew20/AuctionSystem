@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import project.auctionsystem.dto.CreateAccountDto;
 import project.auctionsystem.dto.GetAccountDto;
+import project.auctionsystem.dto.GetBalanceDto;
 
 import java.util.List;
 
@@ -20,5 +21,5 @@ public interface AccountController {
     ResponseEntity<GetAccountDto> create(@RequestBody CreateAccountDto dto);
 
     @GetMapping("/{username}/balance/{currency}")
-    ResponseEntity<Double> getBalance(@PathVariable String username, @PathVariable String currency);
+    ResponseEntity<GetBalanceDto> getBalance(@PathVariable String username, @PathVariable String currency);
 }

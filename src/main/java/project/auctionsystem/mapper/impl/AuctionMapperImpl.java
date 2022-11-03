@@ -13,6 +13,7 @@ public class AuctionMapperImpl implements AuctionMapper {
         GetAuctionDto dto = new GetAuctionDto();
         dto.setId(auction.getId());
         dto.setPrice(auction.getPrice());
+
         dto.setWinnerUsername(auction.getWinner().getUsername());
         dto.setPrice(auction.getPrice());
         dto.setEndDate(auction.getEndDate());

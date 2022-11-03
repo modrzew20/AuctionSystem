@@ -3,6 +3,7 @@ package project.auctionsystem.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import project.auctionsystem.dto.GetBalanceDto;
 import project.auctionsystem.entity.AccessLevel;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
@@ -13,7 +14,6 @@ import project.auctionsystem.repository.AccountRepository;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.AccountService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -46,12 +46,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Double getBalance(String username, String currency) {
-        List<Auction> auctionList = auctionRepository.findByWinnerUsernameAndEndDateBefore(username, LocalDateTime.now());
+    public GetBalanceDto getBalance(String username, String currency) {
+        List<Auction> auctionList = auctionRepository.findByWinner_Username(username);
         double balance = 0.0;
         for (Auction auction : auctionList) {
             balance += auction.getPrice();
         }
-        return balance;
+        GetBalanceDto dto = new GetBalanceDto();
+        dto.setBalance(balance);
+        return dto;
     }
 }

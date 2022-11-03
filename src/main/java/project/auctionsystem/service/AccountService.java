@@ -1,6 +1,7 @@
 package project.auctionsystem.service;
 
 
+import project.auctionsystem.dto.GetBalanceDto;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
@@ -15,5 +16,5 @@ public interface AccountService {
 
     Account create(Account account) throws AccessLevelNotFoundException;
 
-    Double getBalance(String username, String currency) throws AccountNotFoundException;
+    GetBalanceDto getBalance(String username, String currency) throws AccountNotFoundException;
 }

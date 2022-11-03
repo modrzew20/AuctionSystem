@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.entity.Auction;
 import project.auctionsystem.exception.*;
+import project.auctionsystem.repository.AccountRepository;
 import project.auctionsystem.repository.AuctionRepository;
 import project.auctionsystem.service.impl.AuctionServiceImpl;
 import project.auctionsystem.utils.impl.EtagGeneratorImpl;
@@ -29,19 +30,24 @@ class AuctionServiceTest {
     @Mock
     AuctionRepository auctionRepository;
     @Mock
+    AccountRepository accountRepository;
+    @Mock
     EtagGeneratorImpl etagGenerator;
     @InjectMocks
     AuctionServiceImpl auctionService;
 
     private final static String TITLE = "title";
+    private final static String USERNAME = "username";
     private final static Double PRICE = 100.0;
     private final static LocalDateTime END_DATE = LocalDateTime.now().plusDays(2);
 
     private Auction auction;
+    private Account account;
 
     @BeforeEach
     void init() {
-        Account account = new Account();
+        account = new Account();
+        account.setUsername(USERNAME);
 
         auction = new Auction();
         auction.setTitle(TITLE);
@@ -90,12 +96,13 @@ class AuctionServiceTest {
     }
 
     @Test
-    void updatePriceTest() throws AuctionExpiredException, AuctionNotFoundException, InvalidPriceProvidedException, EtagException {
+    void updatePriceTest() throws AuctionExpiredException, AuctionNotFoundException, InvalidPriceProvidedException, EtagException, AccountNotFoundException {
         when(auctionRepository.findById(auction.getId())).thenReturn(Optional.of(auction));
         when(auctionRepository.save(auction)).thenReturn(auction);
+        when(accountRepository.findByUsername(USERNAME)).thenReturn(Optional.ofNullable(account));
         doNothing().when(etagGenerator).verifyEtag(auction);
 
-        Auction result = auctionService.updatePrice(auction.getId(), 200.0);
+        Auction result = auctionService.updatePrice(USERNAME, auction.getId(), 200.0);
         assertEquals(200.0, result.getPrice());
         verify(auctionRepository, times(1)).save(auction);
     }
@@ -104,18 +111,18 @@ class AuctionServiceTest {
     void updatePriceAuctionExpiredExceptionTest() {
         when(auctionRepository.findById(auction.getId())).thenReturn(Optional.of(auction));
         auction.setEndDate(LocalDateTime.now().minusDays(1));
-        assertThrows(AuctionExpiredException.class, () -> auctionService.updatePrice(auction.getId(), 200.0));
+        assertThrows(AuctionExpiredException.class, () -> auctionService.updatePrice(USERNAME, auction.getId(), 200.0));
     }
 
     @Test
     void updatePriceAuctionNotFoundExceptionTest() {
         when(auctionRepository.findById(auction.getId())).thenReturn(Optional.empty());
-        assertThrows(AuctionNotFoundException.class, () -> auctionService.updatePrice(auction.getId(), 200.0));
+        assertThrows(AuctionNotFoundException.class, () -> auctionService.updatePrice(USERNAME, auction.getId(), 200.0));
     }
 
     @Test
     void updatePriceInvalidPriceProvidedExceptionTest() {
         when(auctionRepository.findById(auction.getId())).thenReturn(Optional.of(auction));
-        assertThrows(InvalidPriceProvidedException.class, () -> auctionService.updatePrice(auction.getId(), 50.0));
+        assertThrows(InvalidPriceProvidedException.class, () -> auctionService.updatePrice(USERNAME, auction.getId(), 50.0));
     }
 }

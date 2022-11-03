@@ -23,6 +23,7 @@ public interface AuctionController {
     @PatchMapping("/{id}")
     ResponseEntity<GetAuctionDto> updatePrice(
             @PathVariable UUID id,
+            @RequestParam String username,
             @RequestParam Double price);
 
 }

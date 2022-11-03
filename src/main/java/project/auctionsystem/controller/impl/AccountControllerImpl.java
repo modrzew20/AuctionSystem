@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import project.auctionsystem.controller.AccountController;
 import project.auctionsystem.dto.CreateAccountDto;
 import project.auctionsystem.dto.GetAccountDto;
+import project.auctionsystem.dto.GetBalanceDto;
 import project.auctionsystem.entity.Account;
 import project.auctionsystem.exception.AccessLevelNotFoundException;
 import project.auctionsystem.exception.AccountNotFoundException;
@@ -62,7 +63,7 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
-    public ResponseEntity<Double> getBalance(String username, String currency) {
+    public ResponseEntity<GetBalanceDto> getBalance(String username, String currency) {
         try {
             return ResponseEntity
                     .ok()
